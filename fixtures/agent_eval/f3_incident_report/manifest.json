@@ -1,0 +1,8 @@
+{
+  "sources": {
+    "east": "logs/east.jsonl",
+    "west": "logs/west.jsonl",
+    "codebook": "data/codebook.json",
+    "rules": "data/rules.json"
+  }
+}

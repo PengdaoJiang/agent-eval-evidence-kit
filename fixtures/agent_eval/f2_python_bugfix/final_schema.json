@@ -1,0 +1,79 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "fixture_id": {
+      "type": "string",
+      "const": "f2_python_bugfix"
+    },
+    "failed_tests": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "test_adjacent_inclusive_windows_merge",
+          "test_input_order_is_not_mutated",
+          "test_overlap_still_merges"
+        ]
+      }
+    },
+    "root_cause_codes": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "in_place_sort_mutates_input",
+          "inclusive_adjacency_boundary_missing",
+          "overlap_condition_reversed",
+          "tuple_conversion_mutates_input",
+          "sort_order_descending"
+        ]
+      }
+    },
+    "corrected_results": {
+      "type": "object",
+      "properties": {
+        "adjacent_inclusive": {
+          "type": "array",
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "integer"
+            }
+          }
+        },
+        "non_mutating_order": {
+          "type": "array",
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "integer"
+            }
+          }
+        },
+        "overlap": {
+          "type": "array",
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "integer"
+            }
+          }
+        }
+      },
+      "required": [
+        "adjacent_inclusive",
+        "non_mutating_order",
+        "overlap"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "required": [
+    "fixture_id",
+    "failed_tests",
+    "root_cause_codes",
+    "corrected_results"
+  ],
+  "additionalProperties": false
+}

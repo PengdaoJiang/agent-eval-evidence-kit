@@ -1,0 +1,63 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "fixture_id": {
+      "type": "string",
+      "const": "f3_incident_report"
+    },
+    "incident_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "category_counts": {
+      "type": "object",
+      "properties": {
+        "latency": {
+          "type": "integer"
+        },
+        "normal": {
+          "type": "integer"
+        },
+        "transport": {
+          "type": "integer"
+        }
+      },
+      "required": [
+        "latency",
+        "normal",
+        "transport"
+      ],
+      "additionalProperties": false
+    },
+    "max_latency_ms": {
+      "type": "integer"
+    },
+    "source_counts": {
+      "type": "object",
+      "properties": {
+        "east": {
+          "type": "integer"
+        },
+        "west": {
+          "type": "integer"
+        }
+      },
+      "required": [
+        "east",
+        "west"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "required": [
+    "fixture_id",
+    "incident_ids",
+    "category_counts",
+    "max_latency_ms",
+    "source_counts"
+  ],
+  "additionalProperties": false
+}

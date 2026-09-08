@@ -1,0 +1,9 @@
+{
+  "include_status": "complete",
+  "minimum_duration_ms": 400,
+  "maximum_queued_ms": 150,
+  "sort": [
+    "duration_ms:desc",
+    "job_id:asc"
+  ]
+}

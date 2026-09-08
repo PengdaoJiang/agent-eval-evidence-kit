@@ -1,0 +1,7 @@
+{
+  "sources": {
+    "jobs": "data/jobs.csv",
+    "owners": "data/owners.json",
+    "rules": "data/rules.json"
+  }
+}

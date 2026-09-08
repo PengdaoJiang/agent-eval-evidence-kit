@@ -1,0 +1,14 @@
+{
+  "include_categories": [
+    "transport",
+    "latency"
+  ],
+  "include_latency_at_least_ms": 250,
+  "deduplicate": "keep highest latency_ms; on ties keep lexicographically smaller source",
+  "severity_order": [
+    "critical",
+    "warning",
+    "info"
+  ],
+  "secondary_order": "event_id:asc"
+}

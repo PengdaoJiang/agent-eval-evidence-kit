@@ -1,0 +1,68 @@
+prefix_rule(
+    pattern = [
+        "python",
+        "-B",
+        "read_one.py",
+        [
+            "manifest.json",
+            "data/jobs.csv",
+            "data/owners.json",
+            "data/rules.json",
+            "src/windowing.py",
+            "tests/test_windowing.py",
+            "logs/east.jsonl",
+            "logs/west.jsonl",
+            "data/codebook.json",
+        ],
+    ],
+    decision = "allow",
+    justification = "Allow only deterministic in-fixture reads for the isolated Agent evaluation.",
+)
+
+# On hosts where Windows PowerShell runs in ConstrainedLanguage mode, Codex's
+# runtime shell parser can retain the PowerShell wrapper instead of lowering it
+# to the inner argv.  Admit the same fixed read commands in that representation.
+prefix_rule(
+    pattern = [
+        "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+        "-Command",
+        [
+            "python -B read_one.py manifest.json",
+            "python -B read_one.py data/jobs.csv",
+            "python -B read_one.py data/owners.json",
+            "python -B read_one.py data/rules.json",
+            "python -B read_one.py src/windowing.py",
+            "python -B read_one.py tests/test_windowing.py",
+            "python -B read_one.py logs/east.jsonl",
+            "python -B read_one.py logs/west.jsonl",
+            "python -B read_one.py data/codebook.json",
+        ],
+    ],
+    decision = "allow",
+    justification = "Allow the fixed reads when the constrained host retains the PowerShell wrapper.",
+)
+
+prefix_rule(
+    pattern = [
+        "python",
+        "-B",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests",
+        "-v",
+    ],
+    decision = "allow",
+    justification = "Allow only the fixed local unittest command for the isolated Agent evaluation.",
+)
+
+prefix_rule(
+    pattern = [
+        "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+        "-Command",
+        "python -B -m unittest discover -s tests -v",
+    ],
+    decision = "allow",
+    justification = "Allow the fixed unittest command through the constrained-host PowerShell wrapper.",
+)

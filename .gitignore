@@ -1,0 +1,12 @@
+__pycache__/
+*.pyc
+demo-output/
+.venv/
+.env
+*-output/
+planned-run/
+private-run/
+runs/
+auth.json
+**/codex-home/
+*.zip

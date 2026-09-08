@@ -1,0 +1,3 @@
+{"event_id":"E3","code":"RESET","latency_ms":330,"source":"west"}
+{"event_id":"E5","code":"OK","latency_ms":270,"source":"west"}
+{"event_id":"E6","code":"DNS","latency_ms":90,"source":"west"}

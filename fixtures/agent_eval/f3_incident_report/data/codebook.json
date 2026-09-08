@@ -1,0 +1,22 @@
+{
+  "TIMEOUT": {
+    "category": "transport",
+    "severity": "critical"
+  },
+  "RESET": {
+    "category": "transport",
+    "severity": "warning"
+  },
+  "SLOW": {
+    "category": "latency",
+    "severity": "warning"
+  },
+  "OK": {
+    "category": "normal",
+    "severity": "info"
+  },
+  "DNS": {
+    "category": "resolution",
+    "severity": "warning"
+  }
+}

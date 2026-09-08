@@ -1,0 +1,38 @@
+name: Test evaluation workflows
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 5
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            python: '3.10'
+          - os: ubuntu-latest
+            python: '3.13'
+          - os: windows-latest
+            python: '3.13'
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7
+        with:
+          python-version: ${{ matrix.python }}
+      - run: python -m unittest discover -s tests -v
+      - run: python -m evalkit demo --out demo-output
+      - run: python -m evalkit grade demo-output/trace.json
+      - run: python -m evalkit schedule --seed 17 --repeats 2
+      - run: python -B scripts/agent_eval_orchestrator.py --prepare-only --run-dir planned-run
+      - run: python -B scripts/offline_replay.py --out replay-output
+      - run: python -B scripts/offline_replay.py --omit-last --out missing-receipt-output
+      - run: python -B scripts/analyze_agent_eval_supplemental.py --run-dir replay-output --bootstrap-resamples 1000

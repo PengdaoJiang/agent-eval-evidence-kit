@@ -1,0 +1,46 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "fixture_id": {
+      "type": "string",
+      "const": "f1_manifest_join_readonly"
+    },
+    "selected_job_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "total_duration_ms": {
+      "type": "integer"
+    },
+    "team_counts": {
+      "type": "object",
+      "properties": {
+        "alpha": {
+          "type": "integer"
+        },
+        "beta": {
+          "type": "integer"
+        },
+        "gamma": {
+          "type": "integer"
+        }
+      },
+      "required": [
+        "alpha",
+        "beta",
+        "gamma"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "required": [
+    "fixture_id",
+    "selected_job_ids",
+    "total_duration_ms",
+    "team_counts"
+  ],
+  "additionalProperties": false
+}
