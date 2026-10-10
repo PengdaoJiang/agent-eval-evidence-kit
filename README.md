@@ -22,6 +22,8 @@ Use a new output directory for each run. Planning does not call Codex, SSH, or r
 
 ## Durable execution ownership
 
+[Independent review intake](docs/review-intake.md) now preserves reviewer findings across changed snapshots, with immutable original responses and delta-only handoff. The [complete review workbench](https://github.com/PengdaoJiang/document-review-workbench) provides the separate application, worker pools and human-review UI.
+
 The [runtime kernel](runtime-kernel/README.md) adds source-derived control-plane code from a document reconstruction and independent-review application: exclusive writers, fenced attempts, durable pool limits and bounded tool registration. It complements the experiment evaluator; the two are not presented as one pre-existing integrated service.
 
 ```sh
