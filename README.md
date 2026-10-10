@@ -20,7 +20,17 @@ python -B scripts/analyze_agent_eval_supplemental.py --run-dir replay-output --b
 
 Use a new output directory for each run. Planning does not call Codex, SSH, or read/copy credentials. Replay generates **synthetic** event receipts and runs the real analyzer, including duplicate-tool, wrong-answer, transport-failure and missing-receipt cases. Generated outcomes are pipeline tests, not measured model performance. Supplemental statistics require the complete registered paired schedule and reject incomplete evidence.
 
-## Engineering design
+## Durable execution ownership
+
+The [runtime kernel](runtime-kernel/README.md) adds source-derived control-plane code from a document reconstruction and independent-review application: exclusive writers, fenced attempts, durable pool limits and bounded tool registration. It complements the experiment evaluator; the two are not presented as one pre-existing integrated service.
+
+```sh
+node --test runtime-kernel/tests/*.test.mjs
+```
+
+Tests use synthetic process identities and isolated directories, without starting a model or a scientific tool.
+
+## Evaluation components
 
 | Layer | Implementation | Responsibility |
 | --- | --- | --- |
