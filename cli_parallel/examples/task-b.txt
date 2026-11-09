@@ -1,0 +1,6 @@
+This is a synthetic smoke task, independent of task A.
+Input is fully inline: labels are cedar, birch, cedar, maple.
+Report the three unique labels in first-seen order and identify the duplicated label.
+Save artifacts/report.md and artifacts/handoff.md; mark the output as unaccepted synthetic output.
+Do not use the internet, read external project files, or install anything.
+Final response: brief result and relative artifact paths.

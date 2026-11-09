@@ -6,6 +6,13 @@ Built from an ongoing experimental project, this repository includes the collect
 
 For a code-focused introduction, start with [three failure cases](docs/engineering-cases.md). For the execution path, read the [orchestrator](scripts/agent_eval_orchestrator.py), [collector](scripts/agent_eval_probe.py), then [analyzer](scripts/analyze_agent_eval.py). The smaller provider-neutral `evalkit/` is a separate introductory API.
 
+The [continuous-task runtime](docs/continuous-runtime.md) adds the maintained
+Harness state machines: exact session continuation, uncertain-submission
+reconciliation, immutable input versions, independent execution ledgers and
+registered constructor/reviewer repair rounds. A separate finite Codex CLI
+launcher provides isolated parallel jobs. Both include offline synthetic tests;
+neither starts a model or a resident service by default.
+
 ## Start here — offline, no account required
 
 Python 3.10+, standard library only:
@@ -62,6 +69,8 @@ Read [the live-run guide](docs/live-run-guide.md) before using `--allow-live`. I
 ## 中文说明
 
 从既有 Agent 实验工程整理的评测子系统，保留任务编排、执行采集、失败分类、结果恢复、配对分析和任务样例。重点是把执行过程变成可检查的工程证据：区分答对、遵守工具约束和成功完成传输，保留中断与缺失结果，避免只看成功率。开发过程使用 Codex 辅助实现和迭代。机器与模型通过参数配置，历史原始日志和凭据不公开。
+
+新增的 Harness 运行时保留跨轮续接、精确输入绑定、版本重建、提交不确定状态的对账，以及施工—独立复核—返修的状态转换。公开验证使用合成任务和模拟传输；原始任务记录与生产会话保持私有。
 
 ## Further reading
 

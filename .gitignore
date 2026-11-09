@@ -10,3 +10,6 @@ runs/
 auth.json
 **/codex-home/
 *.zip
+runtime-workspace/
+harness_runtime/workspace/
+bootstrap*.log

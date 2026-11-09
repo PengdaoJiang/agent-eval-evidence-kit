@@ -1,0 +1,4 @@
+# These packages contain exact byte identities and their checksum fixtures.
+harness_runtime/** -text
+cli_parallel/** -text
+.github/workflows/* text eol=lf

@@ -1,0 +1,6 @@
+This is a synthetic smoke task, not real project production.
+Input is fully inline: records are A=2, B=3, C=5.
+Compute their total. Save artifacts/report.md with the total and one arithmetic verification.
+Save artifacts/handoff.md stating exactly what was done and that this is unaccepted synthetic output.
+Do not use the internet, read external project files, or install anything.
+Final response: brief result and relative artifact paths.
