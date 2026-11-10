@@ -1,6 +1,8 @@
 # Agent Execution and Evaluation
 
-Tools for keeping long-running agent work bound to the correct assignment, inputs and execution instance. The repository combines maintained control components with an evaluation pipeline for diagnosing task, tool and environment failures.
+Tools for carrying a research or engineering assignment through long-running agent work: current question, stage, input conditions, valid progress and remaining problems. Maintained control components connect those work packages to native execution and an evaluation pipeline for diagnosing task, tool and environment failures.
+
+The [research work-package guide](docs/research-work-packages.md) explains how assignment continuity, tool evidence and independent review cooperate through multiple sessions.
 
 ## Read the execution path
 
