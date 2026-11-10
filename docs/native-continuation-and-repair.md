@@ -1,0 +1,102 @@
+# Case: native continuation and independent-feedback repair
+
+An engineering assignment can span several model turns, context compaction and
+independent reviews. This case follows two related questions: how to continue
+the same work after an uncertain operation, and how to turn a rejected delivery
+into a useful next repair. The runtime and review layers remain independently
+callable components.
+
+## Preserve the assignment across native execution
+
+```text
+exact assignment + owner/session + selected input catalog
+    -> persist operation intent
+    -> native phase events -> immutable phase receipt -> checkpoint
+    -> optional compaction, with separate usage accounting
+    -> next phase of the same assignment
+    -> idle native event cut -> close observer -> terminal aggregate
+```
+
+The native adapter speaks the inspected local Harness installation's session
+protocol. Before execution, the runner checks the selected session, owner,
+model configuration and registered prompt. A lost prompt acknowledgement is
+recorded as uncertain: replaying the same authorization is refused, because the
+first operation may already have started. An operator can reconcile the retained
+native evidence before authorizing any further operation.
+
+A checkpoint names the preceding phase and selected input state. Compaction is
+another recorded operation; its usage does not disappear into a normal turn's
+total. Unknown usage remains unknown, and repeated event sequences are counted
+once. Finalization requires an idle, unchanged native event cut and successful
+observer closure. Process completion, accepted engineering output and resource
+closure remain distinct decisions.
+
+## Make independent feedback part of the experiment
+
+```text
+constructor -> frozen candidate -> independent review
+                                      |
+                              public defect feedback
+                                      v
+supervisor -> registered repair order -> constructor
+                    |                      |
+                    +---- next frozen candidate ----> new review
+```
+
+In the source workflow, a first-delivery comparison exposed correctness defects
+in an alternative model-and-Harness route. A subsequent experiment introduced a
+supervisor to define repairs without writing the candidate implementation.
+Stopping after one feedback round did not answer whether that collaboration
+could converge, so the workflow was extended to feed independently observed,
+publicly describable defects back into registered repair rounds.
+
+Two constructor configurations subsequently reached acceptance within the
+reviewed scope. The history also exposed a comparison problem: implementations
+used different representable input schemas, leaving some test obligations
+unverified. Scoped acceptance therefore did not establish equal semantic
+coverage or a general replacement for another model. The useful outcome was a
+repair protocol and a better-defined evaluation endpoint, not a leaderboard.
+
+Each new round binds the immediately preceding frozen candidate, its public
+feedback and the new order. Private reviewer inputs do not enter the constructor
+catalog. The source evaluation records construction, supervisory intervention
+and repair effort separately; it retains first-attempt failures instead of
+overwriting them with the repaired result. Cost fields that were not observable
+are not inferred from token totals.
+
+## Run and inspect
+
+From the repository root, with Python 3.10+ and Node.js 22+:
+
+```sh
+python -B verify_harness.py
+python -B verify_control.py
+```
+
+These commands use the extracted implementations with synthetic fixtures and
+fake transport. They make no model, network, VM or private-workspace request.
+
+| Question | Implementation | Reproducible scenario |
+| --- | --- | --- |
+| Did a lost acknowledgement cause a duplicate submission? | [Continuation state](../harness_runtime/continuation_v2.mjs) | [Lost prompt/compaction acknowledgement](../harness_runtime/test_continuation_v2.mjs) |
+| Does a repair retain its registered owner, phase and usage? | [Repair runner](../harness_runtime/astra_loop_run_v1.mjs) | [Registered continuation, checkpoints and duplicate rejection](../harness_runtime/astra_loop_test_continuation_high_v1.mjs) |
+| Can an active or changing native session be finalized? | [Terminal aggregation](../harness_runtime/astra_loop_finalize_v1.mjs) | [Changed event cut, active turn and observer-close failure](../harness_runtime/astra_loop_test_finalize_high_v1.mjs) |
+| Does recovery select the current formal assignment? | [Phase and context control](phase-and-context.md) | `verify_control.py` checks caller identity, current epoch and complete selected sections |
+
+The corresponding `max` fixture exercises the second registered configuration.
+The tests qualify mechanical transitions, not the quality of a live model's
+engineering output. Historical observations above come from retained private
+task and review records; they are not regenerated by the offline fixtures.
+
+## Deployment and source scope
+
+The native runtime requires a configured local Harness installation and prepared
+session/job/catalog records. See [continuous execution](continuous-runtime.md)
+for deployment variables, extraction provenance and protocol scope. The module
+names retain source-route aliases; the offline checks do not call those models.
+
+Codex assignment control and the finite CLI launcher have separate entry points.
+This repository does not bundle the source workspace's Codex App Server GUI
+startup sidecar or promise one interchangeable adapter for all providers.
+Private task bodies, candidate engineering sources, reviewer material,
+credentials and original session histories remain outside the distribution.

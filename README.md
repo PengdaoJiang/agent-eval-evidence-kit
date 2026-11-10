@@ -1,16 +1,16 @@
 # Agent Execution and Evaluation
 
-Tools for carrying a research or engineering assignment through long-running agent work: current question, stage, input conditions, valid progress and remaining problems. Maintained control components connect those work packages to native execution and an evaluation pipeline for diagnosing task, tool and environment failures.
+Native Harness integration, recoverable execution and independent-feedback repair for long-running agent work. The components preserve the current assignment through session phases, tool execution and review, then use observed failures to guide the next repair.
 
-The [research work-package guide](docs/research-work-packages.md) explains how assignment continuity, tool evidence and independent review cooperate through multiple sessions.
+Start with the [continuation and repair case](docs/native-continuation-and-repair.md): follow one assignment through an uncertain submission, checkpointed continuation, frozen delivery and a new repair round. It connects the extracted implementation to source-workflow observations and runnable offline checks.
 
 ## Read the execution path
 
 | Problem | Implementation | Guide |
 | --- | --- | --- |
+| Integrate native sessions and registered repair rounds | `harness_runtime/` | [Continuation and repair case](docs/native-continuation-and-repair.md) |
 | Recover the current formal assignment | `phase_runtime/` | [Epochs, checkpoints and caller identity](docs/phase-and-context.md) |
 | Read the selected inputs without losing conditions | `context_runtime/` | [Role-specific context views](docs/phase-and-context.md#context-navigation-preserves-the-contract) |
-| Continue a session after uncertain submission | `harness_runtime/` | [Continuous-task state machines](docs/continuous-runtime.md) |
 | Execute in a VM and recover the original job | `vm_execution/` | [Leases, rollback identity and artifact publication](docs/vm-execution.md) |
 | Explain why an agent run failed | `scripts/agent_eval_*.py` | [Three engineering cases](docs/engineering-cases.md) |
 
@@ -28,17 +28,18 @@ python -B scripts/offline_replay.py --out replay-output
 python -B scripts/analyze_agent_eval_supplemental.py --run-dir replay-output --bootstrap-resamples 1000
 ```
 
-The replay creates synthetic execution receipts and runs the actual analyzer. It exercises missing results, duplicate calls, transport failure and task errors. Generated replay outcomes describe pipeline behavior; historical model observations have a [separate case study](docs/paired-evaluation-case-study.md).
+The Harness checks exercise the actual state machines with synthetic native transports; the replay exercises the evaluator with generated receipts. Neither invokes a model. The [representative case](docs/native-continuation-and-repair.md#run-and-inspect) identifies the scenarios and code to inspect.
 
 ## Mechanisms worth inspecting
 
 - Formal registration and worker progress have separate writers and immutable hash-linked records. Recovery selects the current epoch and checkpoint.
 - Context navigation retains source identities and unknown fields. Complete sections remain available for checking scientific or engineering conditions.
 - An uncertain dispatch is reconciled before further execution. A VM recovery collects the existing job, and a changed epoch or boot identity invalidates stale recovery.
+- A repair round binds its predecessor's frozen candidate and public feedback. Independent reviewer material remains outside constructor inputs; continuation and compaction usage are recorded separately.
 - A terminal process, a valid result and released resources are separate facts. Artifact export is staged and verified before publication.
 - Evaluation freezes tasks, scoring and execution order, then separates answer correctness, tool adherence, transport and workspace changes.
 
-Additional components include the finite [CLI launcher](cli_parallel/README.md), [writer-ownership kernel](runtime-kernel/README.md), and [independent-review intake](docs/review-intake.md). The small `evalkit/` introductory API has its own [trace contract](docs/trace-contract.md).
+Additional components include the finite [CLI launcher](cli_parallel/README.md), [writer-ownership kernel](runtime-kernel/README.md), and [independent-review intake](docs/review-intake.md). The [research work-package guide](docs/research-work-packages.md) connects them to research obligations. An [earlier environment-pairing study](docs/paired-evaluation-case-study.md) remains as historical methodology; the small `evalkit/` API has its own [trace contract](docs/trace-contract.md).
 
 ## Deployment and evidence
 
