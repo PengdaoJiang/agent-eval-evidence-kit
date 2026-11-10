@@ -1,95 +1,49 @@
-# Agent Evaluation Evidence Kit
+# Agent Execution and Evaluation
 
-Source-derived tooling for paired **Agent execution evaluation**: freeze tasks and schedules, collect tool-event traces, recover interrupted experiments, score independent failure dimensions, and analyze paired outcomes.
+Tools for keeping long-running agent work bound to the correct assignment, inputs and execution instance. The repository combines maintained control components with an evaluation pipeline for diagnosing task, tool and environment failures.
 
-Built from an ongoing experimental project, this repository includes the collector, two-host orchestrator, remote bootstrap, primary and supplemental analyzers, task fixtures, policy rules, and regression tests. The central engineering question is: **when an agent run finishes, what evidence establishes that it completed the right task under the intended constraints?**
+## Read the execution path
 
-For a code-focused introduction, start with [three failure cases](docs/engineering-cases.md). For the execution path, read the [orchestrator](scripts/agent_eval_orchestrator.py), [collector](scripts/agent_eval_probe.py), then [analyzer](scripts/analyze_agent_eval.py). The smaller provider-neutral `evalkit/` is a separate introductory API.
+| Problem | Implementation | Guide |
+| --- | --- | --- |
+| Recover the current formal assignment | `phase_runtime/` | [Epochs, checkpoints and caller identity](docs/phase-and-context.md) |
+| Read the selected inputs without losing conditions | `context_runtime/` | [Role-specific context views](docs/phase-and-context.md#context-navigation-preserves-the-contract) |
+| Continue a session after uncertain submission | `harness_runtime/` | [Continuous-task state machines](docs/continuous-runtime.md) |
+| Execute in a VM and recover the original job | `vm_execution/` | [Leases, rollback identity and artifact publication](docs/vm-execution.md) |
+| Explain why an agent run failed | `scripts/agent_eval_*.py` | [Three engineering cases](docs/engineering-cases.md) |
 
-The [continuous-task runtime](docs/continuous-runtime.md) adds the maintained
-Harness state machines: exact session continuation, uncertain-submission
-reconciliation, immutable input versions, independent execution ledgers and
-registered constructor/reviewer repair rounds. A separate finite Codex CLI
-launcher provides isolated parallel jobs. Both include offline synthetic tests;
-neither starts a model or a resident service by default.
+Each component has its own entry point. The guides describe their integration boundaries and retained source schemas. The complete review application lives in [document-review-workbench](https://github.com/PengdaoJiang/document-review-workbench).
 
-The [phase and context controllers](docs/phase-and-context.md) recover the current
-formal assignment after continuation and expose exact, role-specific reading
-views. The [VM task controller](docs/vm-execution.md) separately binds execution
-to a VM instance, recovers an existing job after an SSH disconnect, and rejects
-stale recovery after reboot or rollback. These components have separate entry
-points and documented integration boundaries.
+## Run offline
+
+Python 3.10+ and Node.js; the control suites use the standard library and synthetic transports.
 
 ```sh
 python -B verify_control.py
-```
-
-## Start here — offline, no account required
-
-Python 3.10+, standard library only:
-
-```sh
+python -B verify_harness.py
 python -B -m unittest discover -s tests -v
-python -B scripts/agent_eval_orchestrator.py --prepare-only --run-dir planned-run
 python -B scripts/offline_replay.py --out replay-output
-python -B scripts/offline_replay.py --omit-last --out missing-receipt-output
 python -B scripts/analyze_agent_eval_supplemental.py --run-dir replay-output --bootstrap-resamples 1000
 ```
 
-Use a new output directory for each run. Planning does not call Codex, SSH, or read/copy credentials. Replay generates **synthetic** event receipts and runs the real analyzer, including duplicate-tool, wrong-answer, transport-failure and missing-receipt cases. Generated outcomes are pipeline tests, not measured model performance. Supplemental statistics require the complete registered paired schedule and reject incomplete evidence.
+The replay creates synthetic execution receipts and runs the actual analyzer. It exercises missing results, duplicate calls, transport failure and task errors. Generated replay outcomes describe pipeline behavior; historical model observations have a [separate case study](docs/paired-evaluation-case-study.md).
 
-## Durable execution ownership
+## Mechanisms worth inspecting
 
-[Independent review intake](docs/review-intake.md) now preserves reviewer findings across changed snapshots, with immutable original responses and delta-only handoff. The [complete review workbench](https://github.com/PengdaoJiang/document-review-workbench) provides the separate application, worker pools and human-review UI.
+- Formal registration and worker progress have separate writers and immutable hash-linked records. Recovery selects the current epoch and checkpoint.
+- Context navigation retains source identities and unknown fields. Complete sections remain available for checking scientific or engineering conditions.
+- An uncertain dispatch is reconciled before further execution. A VM recovery collects the existing job, and a changed epoch or boot identity invalidates stale recovery.
+- A terminal process, a valid result and released resources are separate facts. Artifact export is staged and verified before publication.
+- Evaluation freezes tasks, scoring and execution order, then separates answer correctness, tool adherence, transport and workspace changes.
 
-The [runtime kernel](runtime-kernel/README.md) adds source-derived control-plane code from a document reconstruction and independent-review application: exclusive writers, fenced attempts, durable pool limits and bounded tool registration. It complements the experiment evaluator; the two are not presented as one pre-existing integrated service.
+Additional components include the finite [CLI launcher](cli_parallel/README.md), [writer-ownership kernel](runtime-kernel/README.md), and [independent-review intake](docs/review-intake.md). The small `evalkit/` introductory API has its own [trace contract](docs/trace-contract.md).
 
-```sh
-node --test runtime-kernel/tests/*.test.mjs
-```
+## Deployment and evidence
 
-Tests use synthetic process identities and isolated directories, without starting a model or a scientific tool.
+Offline commands do not start a model or VM. Live transports require an explicitly configured local CLI or prepared VM environment; see the [live-run guide](docs/live-run-guide.md) and [VM deployment scope](docs/vm-execution.md#offline-verification-and-deployment-scope). Protocol identity checks are distinct from OS authentication and sandboxing. Scientific acceptance requires its own review.
 
-## Evaluation components
-
-| Layer | Implementation | Responsibility |
-| --- | --- | --- |
-| Task contracts | `fixtures/agent_eval/`, `agent_eval_rules/` | Three staged read-only tasks, exact read order, strict final-answer schemas |
-| Collection | `scripts/agent_eval_probe.py` | Timestamped JSONL events, stdout/stderr, tool lifecycle, timeout, workspace manifests |
-| Orchestration | `scripts/agent_eval_orchestrator.py` | Seeded AB/BA schedule, serial execution, frozen source hashes, atomic receipts, resumable attempts |
-| Remote staging | `scripts/agent_eval_remote_bootstrap.py` | Bounded Windows SSH bootstrap and host-local isolated CLI configuration |
-| Acceptance | `scripts/analyze_agent_eval.py` | Task answer, tool protocol, transport, workspace changes, expected-failure exception |
-| Inference | `scripts/analyze_agent_eval_supplemental.py` | Paired outcomes, exact inference, order effects, resampling, lifecycle and usage diagnostics |
-
-The design uses four configurable model IDs × three fixtures × two order-balanced repetitions × two environments. An intentionally failing unit-test baseline is allowed exactly once and only with the expected failure signature. A repeated or unrelated failure is not excused. Missing receipts remain in the planned denominator.
-
-## Live experiments — explicit opt-in
-
-The source-derived live transport targets **two Windows environments** with Python, OpenSSH and an independently authenticated Codex CLI on each. Model IDs, SSH alias, Python path and remote experiment root are parameters, not embedded machine configuration. The `config-a` … `config-d` defaults are offline labels, not valid model IDs.
-
-Read [the live-run guide](docs/live-run-guide.md) before using `--allow-live`. It authorizes host-local credential staging and network/model execution, which may consume account quota. No credential is transferred between hosts. Raw run directories must remain private.
-
-## Evidence and interpretation
-
-- Answer correctness, tool adherence, execution completion and workspace changes are separate measurements. Their conjunction is a strict completion criterion, not a universal model-quality score.
-- Workspace manifests cover the isolated fixture, not the whole machine. Post-run transcript checks are not a sandbox or an attestation system.
-- Freeze code, inputs and scoring before execution. A checksum detects drift; it does not authenticate an untrusted run supplied by someone else.
-- Order balancing and paired analysis do not make an uncontrolled environment comparison causal. Small samples, dependence and host differences still matter.
-- The supplemental analyzer imports the frozen scoring module: analyze only runs and frozen code you trust.
-
-## 中文说明
-
-从既有 Agent 实验工程整理的评测子系统，保留任务编排、执行采集、失败分类、结果恢复、配对分析和任务样例。重点是把执行过程变成可检查的工程证据：区分答对、遵守工具约束和成功完成传输，保留中断与缺失结果，避免只看成功率。开发过程使用 Codex 辅助实现和迭代。机器与模型通过参数配置，历史原始日志和凭据不公开。
-
-新增的 Harness 运行时保留跨轮续接、精确输入绑定、版本重建、提交不确定状态的对账，以及施工—独立复核—返修的状态转换。公开验证使用合成任务和模拟传输；原始任务记录与生产会话保持私有。
-
-## Further reading
-
-- [Architecture and release scope](docs/architecture-and-release.md)
-- [Live-run guide](docs/live-run-guide.md)
-- [Historical paired experiment](docs/paired-evaluation-case-study.md) — aggregate historical observations, separate from generated replay
-- [Introductory trace contract](docs/trace-contract.md) — applies to the smaller `evalkit/` API
+Source boundaries and dependency provenance are documented in [architecture and release scope](docs/architecture-and-release.md). Original private task histories and deployment credentials remain outside the distribution.
 
 ## License
 
-[MIT](LICENSE). Codex CLI is an external dependency and is not redistributed. See [third-party notices](THIRD_PARTY_NOTICES.md).
+[MIT](LICENSE). External tools retain their own terms; see [third-party notices](THIRD_PARTY_NOTICES.md).
