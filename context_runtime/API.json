@@ -1,0 +1,30 @@
+{
+  "schema": "rea.context_view.api.v1",
+  "release": "1.0.1",
+  "entry": "context_view.py",
+  "scope": "Read-only presentation. Does not replace phase_control context, grant read scope, dispatch, revise sealed contracts, change owners or tokens, compute readiness, or accept science.",
+  "order_binding": "Use --order ABS_FORMAL_ORDER --sha256 EXPECTED_PHASE_BINDING_HASH [--bytes EXPECTED_BYTES]. Alternatively --order accepts an exact {path,bytes,sha256} JSON object or an absolute JSON file containing that descriptor. Wrong hashes, links and unsupported schemas are refused. No sibling directory enumeration.",
+  "commands": {
+    "architect": "Current route groups and terminal conditions, with current supervisor facts and an explicit stale-route-snapshot flag. Historical route snapshots never become live worker status.",
+    "supervisor": "Existing active and READY-labelled queue rows, wait cursors, pending helper transactions, unconsumed terminal references, issues, gates and next action. Known terminal rows with recorded archive references and known deferred rows become counts. Terminal rows lacking archive references and unrecognized states remain visible. Archive references are recorded control evidence, not freshly reverified platform facts. No dependency recomputation.",
+    "worker --order EXACT": "Goal, owned roots, exact document descriptors and every top-level field pointer. Dependency records become counts. This is navigation, not the scientific input contract.",
+    "inputs --order EXACT [--role EXACT_ROLE] [--match PATH_SUBSTRING]": "Existing initial selected-index identity records only, with exact index pointer and omitted field names. Read each complete record before scientific use; usage, compatibility, qualifications and unknown fields remain binding. Role equality and path substring filtering do not extend scope. Does not open referenced scientific files or manifests.",
+    "core --order EXACT --document definition|method": "Complete original JSON document, including every additional or unknown scientific field. No truncation or summary substitution.",
+    "section --order EXACT --document order|definition|method|inputs|storage|read_scope|process_scope --pointer JSON_POINTER": "Complete selected field. Empty pointer returns the complete selected document. No nested reference following. Supports RFC6901 escaping and rejects missing/malformed pointers."
+  },
+  "startup_reading": "After unchanged phase_control context, use its exact formal order path/hash. Navigate by the actual keys and read complete scientific sections: goal, assumptions, state_relation, acceptance, independent_verification, exports and all additional scientific fields. Review every key, including unknown keys. Read relevant complete method chapters and original order deliverables/acceptance. Core remains an optional whole-document fallback; do not repeatedly dump both contracts. Follow exact read/process scope. Navigation never excuses unread proof premises.",
+  "measurement": "UTF-8 serialized output bytes only; not tokens, cumulative context, memory or admission limits.",
+  "authorization_boundary": "CLI checks the existing CODEX_THREAD_ID: architect and supervisor commands require their recorded project control owner; worker/inputs/core/section require the issued order audit_writer.owner and/or storage_operations.owner, with all present owners equal to the native caller. Cross-job orders are refused before following selected document references. This is protocol validation, not OS authentication or a sandbox. Do not override the native identity. Library functions are for explicitly scoped architecture audit/testing only; there is no CLI cross-owner bypass. No private-verifier disclosure permission is introduced.",
+  "control_owners": {
+    "architect": "configured PHASE_ARCHITECT_THREAD",
+    "supervisor": "configured PHASE_SUPERVISOR_THREAD"
+  },
+  "readonly": true,
+  "no_new_research_gate": true,
+  "definition_schemas": [
+    "rea.architecture.action_continuation_definition.v1",
+    "rea.architecture.delivery_recovery_definition.v1"
+  ],
+  "compatibility": "Adds only the exact delivery_recovery definition schema. Every original or unknown field remains visible in navigation and is returned completely by section/core. Unsupported schemas are still refused. Owner/role, selected-document and exact-hash checks are unchanged.",
+  "prospective_adoption": "Select this release reader, API and its administrative descriptor explicitly in new issued order/input/storage scope. Do not edit v1.0.0 or any frozen order; current orders continue their already authorized exact-file fallback."
+}

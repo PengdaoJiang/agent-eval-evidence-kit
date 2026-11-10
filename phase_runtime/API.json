@@ -1,0 +1,70 @@
+{
+  "schema": "rea.phase_guard.api.v1",
+  "version": "1.0.0",
+  "entry": "phase_guard.py",
+  "library": "run({operation: <operation>, ...request}) or run(operation, request); Refused derives from ValueError",
+  "cli": "python -B phase_guard.py <operation> --request <absolute JSON path>",
+  "native_identity_recovery_cli": "python -B phase_guard.py recover --registry-root <absolute controller registry>; reads CODEX_THREAD_ID (or explicit --thread-id)",
+  "identity": {"path": "absolute regular single-link file; no link/reparse ancestors", "bytes": "exact nonnegative integer", "sha256": "lowercase SHA-256 of exact file bytes"},
+  "ownership": {
+    "registry_root": "One controller writer. Register alone writes its OWNER.json and immutable per-thread registration receipts.",
+    "progress_root": "One assigned worker writer. Publish-progress alone writes its OWNER.json and immutable per-epoch progress receipts. Registry and progress roots must be disjoint.",
+    "claim_boundary": "Declared owner, source and role strings are consistency evidence, not OS authentication. Invoke through the accepted caller-identity wrapper. Full Access is not an OS sandbox.",
+    "native_observation": "Controller selects native tool facts into a retained exact file outside worker progress_root. The controller must ensure it is their tool observation, not a worker assertion. This module verifies identity and field agreement; it does not query the platform or authenticate provenance."
+  },
+  "native_observation_schema": {
+    "schema": "rea.phase_guard.native_observation.v1",
+    "source": "supervisor_native_tool",
+    "controller_owner": "actual controller thread id",
+    "native_tool": "tool name that supplied the observation, e.g. wait_threads or read_thread",
+    "thread_id": "exact worker thread id",
+    "turn_id": "exact observed current turn id",
+    "status": "exact native status; failed turns are valid registration facts but not formal deliveries",
+    "optional_provenance": "Additional original tool evidence identity, observed time and selected native error may be retained without being printed by recover."
+  },
+  "operations": {
+    "register": {
+      "required": ["registry_root", "controller_owner", "thread_id", "job_id", "attempt", "formal_turn_id", "expected_epoch", "assignment", "formal_work_order", "native_observation", "progress_root"],
+      "optional": ["registration_reason", "initial_checkpoint", "stage", "next_action", "continuity", "run_state"],
+      "assignment": "Exact descriptor of retained JSON containing job=<job_id>/<attempt>, native_thread_id or thread_id, native_turn_id or formal_turn_id for original formal dispatch, and formal_work_order exact descriptor. Never modify a sealed assignment to bind a continuation.",
+      "registration_reason": "initial (default): current turn equals original assignment turn; continuation: prior same job/attempt/formal identity required; migration: previously unregistered thread may bind a different exact observed current turn while preserving original assignment.",
+      "epoch": "CAS expected_epoch starts at 0; successful register appends epoch+1. Current selection uses the highest contiguous immutable epoch and verified hash chain, never mtime or a stale mutable pointer.",
+      "continuation": "Same assignment carries its latest checkpoint, next action, process/token/completed-work evidence into the new epoch. Progress sequence resets to 0. A same-assignment register can only append continuity evidence under the same recursive preservation rules as publish-progress. Different observed formal turn requires controller registration. A failed turn cannot be relabelled completed.",
+      "run_state": "Controller-owned current state; preserve WAITING_NATIVE_PLATFORM_ACCESS or WAITING_USER_PLATFORM_ACCESS for a blocked native owner. Register/recover perform no start, retry, owner transfer or token release.",
+      "initial_checkpoint": "Optional exact descriptor of an immutable JSON snapshot. It must contain nonempty string job=<job_id>/<attempt> and at least one nonempty string owner/owner_thread_id/native_thread_id/thread_id matching the worker. A present schema must be nonempty text. A present formal_work_order must be a fully verified identity descriptor or supported absolute path; null, boolean, number, array and malformed descriptors are rejected. A present formal_work_order_sha256 must be a matching string. Reference a small immutable snapshot of a mutable stage_anchor.json, never bind a file that will be overwritten in place.",
+      "result": ["status=REGISTERED", "epoch", "binding_id (registration receipt SHA-256)", "registration descriptor"]
+    },
+    "publish-progress": {
+      "required": ["registry_root", "thread_id", "caller_owner", "epoch", "binding_id", "expected_sequence", "checkpoint", "stage", "next_action"],
+      "optional": ["continuity"],
+      "rules": "Caller owner equals registered worker. Exact current binding and CAS sequence required. Checkpoint follows register checkpoint rules. Worker updates only its progress root, never registry. Progress from a superseded epoch cannot become current.",
+      "continuity": "Omitting the entire field inherits all existing evidence. An explicitly provided continuity object is a complete append-only snapshot: retain every old key recursively, preserve old scalar values with exact JSON types, and retain each old list as an exact unchanged prefix of the new list. New keys and appended list evidence are allowed. Empty/partial replacements, removed or reordered references, changed owner/process/token facts and null are refused. Closure is represented by new closure evidence while retaining the original references; this does not release resources or prove closure. Nonfinite JSON numbers are refused.",
+      "checkpoint_stability": "Checkpoint snapshots must be immutable. Publish each new stage under a new path. The previous checkpoint identity must still match before a new progress record is accepted; overwriting an already-bound checkpoint makes recovery and progress publication fail closed rather than silently repairing the evidence chain.",
+      "result": ["status=PROGRESS_PUBLISHED", "epoch", "sequence", "binding_id", "progress_receipt descriptor"]
+    },
+    "recover": {
+      "required": ["registry_root", "thread_id"],
+      "optional": ["job_id", "attempt"],
+      "result": "Current exact formal order, assignment, thread/job/attempt/epoch/binding/current-turn/run-state/native-status plus latest checkpoint/stage/next_action/continuity. Optional job/attempt must match current. No full ledger or native log is returned.",
+      "missing": "CURRENT_FORMAL_ASSIGNMENT_REQUIRED or CURRENT_FORMAL_ASSIGNMENT_NEEDS_CHECKPOINT, metadata_pending=true. This includes the short dispatch-to-registration race and is metadata awaiting the current controller, not a new research qualification gate. Never fall back to startup, open a new owner, release tokens or auto-retry a blocked platform turn."
+    },
+    "validate-delivery": {
+      "required": ["registry_root", "thread_id", "delivery", "native_observation"],
+      "delivery_schema": "rea.phase_guard.formal_delivery.v1",
+      "delivery_fields": ["kind=formal", "thread_id", "job_id", "attempt", "epoch", "binding_id", "formal_turn_id", "formal_work_order_sha256", "progress_sequence", "checkpoint_sha256", "native_terminal={thread_id,turn_id,status:completed}"],
+      "rules": "All fields exactly match current recovery, with strict integer types. Independent controller observation descriptor must match current thread/turn and completed status; worker native_terminal alone is insufficient. Refuse stale startup schema/kind, any old job/attempt/epoch/order/checkpoint/turn, unsuccessful registered native status, WAITING_NATIVE_PLATFORM_ACCESS or WAITING_USER_PLATFORM_ACCESS, missing checkpoint, or concurrent phase change.",
+      "result": "CURRENT_FORMAL_IDENTITY_VALID; research_accepted=false. Scientific correctness, process closure, original owner release, storage finish and existing acceptance rules remain separate. No event consumption, archive, global queue transition or release occurs here."
+    },
+    "hook-context": {
+      "required": ["project_root"],
+      "event": "event may be supplied in request; CLI otherwise reads official hook stdin JSON",
+      "rules": "Optional read-only SessionStart compact/resume advisory. Matching cwd only; session_id is never treated as actual worker identity because subagents can share it. Outputs a generic instruction to call the fixed recovery entry with the caller's own identity, never a specific job/checkpoint/token. No .codex/hooks.json or trust settings are changed. Core recovery and receipt validation do not depend on hook installation.",
+      "result": "Empty object or hookSpecificOutput with hookEventName=SessionStart and generic additionalContext"
+    }
+  },
+  "success_statuses": ["REGISTERED", "PROGRESS_PUBLISHED", "CURRENT_PHASE", "CURRENT_FORMAL_IDENTITY_VALID"],
+  "metadata_pending_statuses": ["CURRENT_FORMAL_ASSIGNMENT_REQUIRED", "CURRENT_FORMAL_ASSIGNMENT_NEEDS_CHECKPOINT"],
+  "failure": "Library raises Refused/ValueError or OSError; CLI returns status=REFUSED and nonzero. Metadata pending returns nonzero; hook-context returns zero for an empty advisory result. No old startup fallback is produced.",
+  "persistence": "Bounded per-root exclusive lock and immutable atomically published hash-chain records. Existing locks require reconciliation by their original owner; no stale-owner cleanup is attempted. Valid committed epoch receipts survive a crash without a mutable latest pointer. Temporary unpublished files are not selected as current.",
+  "non_goals": ["Diagnosing underlying native compaction causality", "Editing native internal databases or plugin caches", "Sending desktop messages or starting models", "Releasing processes, storage pins or tokens", "Changing S1/S2 prerequisites", "Bypassing a platform block or hook trust"]
+}

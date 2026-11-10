@@ -1,5 +1,5 @@
 {
-  "release": "2026-11-continuation-runtime",
+  "release": "2026-11-phase-context-vm",
   "files": [
     ".gitattributes",
     ".github/workflows/ci.yml",
@@ -22,13 +22,18 @@
     "cli_parallel/templates/review-and-handoff.md",
     "cli_parallel/templates/work-package.txt",
     "cli_parallel/tests/test_cli_parallel.py",
+    "context_runtime/API.json",
+    "context_runtime/context_view.py",
+    "context_runtime/test_context_view.py",
     "docs/architecture-and-release.md",
     "docs/continuous-runtime.md",
     "docs/engineering-cases.md",
     "docs/live-run-guide.md",
     "docs/paired-evaluation-case-study.md",
+    "docs/phase-and-context.md",
     "docs/review-intake.md",
     "docs/trace-contract.md",
+    "docs/vm-execution.md",
     "evalkit/__init__.py",
     "evalkit/__main__.py",
     "evalkit/core.py",
@@ -81,6 +86,12 @@
     "harness_runtime/test_usage_metrics.mjs",
     "harness_runtime/usage_metrics.mjs",
     "harness_runtime/versioned_inputs_v2.py",
+    "phase_runtime/API.json",
+    "phase_runtime/phase_control.py",
+    "phase_runtime/phase_guard.py",
+    "phase_runtime/test_control.py",
+    "phase_runtime/test_public.py",
+    "phase_runtime/test_public_v2.py",
     "public-files.json",
     "review_intake/__init__.py",
     "review_intake/results.py",
@@ -109,6 +120,9 @@
     "tests/test_core.py",
     "tests/test_public_workflow.py",
     "tests/test_review_intake.py",
-    "verify_harness.py"
+    "verify_control.py",
+    "verify_harness.py",
+    "vm_execution/tests/test_vmctl.py",
+    "vm_execution/tools/vmctl.py"
   ]
 }

@@ -13,6 +13,17 @@ registered constructor/reviewer repair rounds. A separate finite Codex CLI
 launcher provides isolated parallel jobs. Both include offline synthetic tests;
 neither starts a model or a resident service by default.
 
+The [phase and context controllers](docs/phase-and-context.md) recover the current
+formal assignment after continuation and expose exact, role-specific reading
+views. The [VM task controller](docs/vm-execution.md) separately binds execution
+to a VM instance, recovers an existing job after an SSH disconnect, and rejects
+stale recovery after reboot or rollback. These components have separate entry
+points and documented integration boundaries.
+
+```sh
+python -B verify_control.py
+```
+
 ## Start here — offline, no account required
 
 Python 3.10+, standard library only:
